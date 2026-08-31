@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>杀戮尖塔卡牌猜测</title>
+  <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <h1 class="site-title">杀戮尖塔卡牌猜测(塔一把)</h1>
+    <section class="guess-panel">
+      <div class="autocomplete-wrap">
+        <input id="guessInput" type="text" autocomplete="off" placeholder="输入卡牌名称">
+        <div id="autocompleteList" class="autocomplete-list" hidden></div>
+      </div>
+    </section>
+
+    <header class="topbar">
+      <div class="controls" aria-label="顶部控制区">
+        <button id="randomBtn" class="control-btn random-btn" type="button">随机开局</button>
+        <button id="confirmBtn" class="control-btn confirm-btn" type="button">确定</button>
+        <button id="surrenderBtn" class="control-btn surrender-btn" type="button">投降</button>
+        <button id="restartBtn" class="control-btn restart-btn" type="button">重新开始</button>
+
+      </div>
+      <button id="settingsBtn" class="settings-btn" type="button" aria-label="设置">⚙</button>
+
+    </header>
+
+    <section class="status-bar">
+      <span id="guessCountText">本轮猜测次数：0/8</span>
+      <span id="streakText">连胜次数：0</span>
+    </section>
+
+    <section id="message" class="message" hidden></section>
+    <section id="results" class="results" aria-live="polite"></section>
+
+    <footer class="rules-note">
+      输入卡牌名并点击“确定”猜测。绿色为完全一致，黄色为数据接近，灰色为完全无关。
+    </footer>
+  </main>
+
+  <div id="settingsModal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-head">
+        <h2 id="settingsTitle">设置</h2>
+        <button id="closeSettings" class="modal-close" type="button" aria-label="关闭">×</button>
+      </div>
+
+      <div class="setting-group">
+        <label for="maxGuesses">最大猜测次数</label>
+        <div class="range-wrap">
+          <input id="maxGuesses" type="range" min="3" max="15" step="1" value="8">
+          <span id="maxGuessesValue">8</span>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-title">题库设置：卡牌所属</div>
+        <div id="ownerFilters" class="filter-grid"></div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-title">题库设置：所属版本</div>
+        <div id="versionFilters" class="filter-grid"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="saveSettings" class="control-btn confirm-btn" type="button">保存</button>
+        <button id="cancelSettings" class="control-btn settings-btn" type="button">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/js/app.js?v=20260831"></script>
+</body>
+</html>
