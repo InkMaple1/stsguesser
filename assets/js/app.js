@@ -217,6 +217,19 @@ function compareTermStates(terms, targetTerms) {
   }));
 }
 
+function compareSpecialTerms(guessTerms, targetTerms) {
+  const targetSet = new Set(targetTerms);
+  const exactSet = guessTerms.length === targetTerms.length && guessTerms.every((term) => targetSet.has(term));
+  return guessTerms.map((term) => {
+
+    const correct = targetSet.has(term);
+    if (!correct) return { term, state: "none" };
+    if (exactSet) return { term, state: "exact" };
+    if (guessTerms.length > targetTerms.length) return { term, state: "exact" };
+    return { term, state: "partial" };
+  });
+}
+
 function compareVersionTerms(guessTerms, targetTerms) {
   const targetSet = new Set(targetTerms);
   const guessIsBoth = guessTerms.length > 1;
@@ -302,7 +315,7 @@ function renderGuess(guessCard) {
   ];
 
   rows.forEach(([label, guessTerms, targetTerms]) => {
-    const states = label === "所属版本" ? compareVersionTerms(guessTerms, targetTerms) : label === "卡牌费用" ? compareCostTerms(guessCard, target) : compareTermStates(guessTerms, targetTerms);
+    const states = label === "所属版本" ? compareVersionTerms(guessTerms, targetTerms) : label === "卡牌费用" ? compareCostTerms(guessCard, target) : label === "特殊说明" ? compareSpecialTerms(guessTerms, targetTerms) : compareTermStates(guessTerms, targetTerms);
     const column = document.createElement("div");
     column.className = "field-column";
     const labelEl = document.createElement("span");
