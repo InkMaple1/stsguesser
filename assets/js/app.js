@@ -213,7 +213,7 @@ function compareTermStates(terms, targetTerms) {
   const targetSet = new Set(targetTerms);
   return terms.map((term) => ({
     term,
-    state: targetSet.has(term) ? "exact" : "none",
+    state: term === "无" || targetSet.has(term) ? "exact" : "none",
   }));
 }
 
