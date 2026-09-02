@@ -246,13 +246,17 @@ function compareVersionTerms(guessTerms, targetTerms) {
 
 function parseCost(value) {
   const raw = String(value ?? "").trim();
-  const match = raw.match(/^(\d+)(?:\((\d+)\))?$/);
+  const match = raw.match(/^(\d+)(?:\((\d+|X|x)\))?$/);
   if (!match) return { raw, base: null, inner: null, hasInner: false };
+  const rawInner = match[2] ?? null;
+  const inner = rawInner == null || rawInner.toLowerCase() === "x"
+    ? rawInner
+    : Number.parseInt(rawInner, 10);
   return {
     raw,
     base: Number.parseInt(match[1], 10),
-    inner: match[2] == null ? null : Number.parseInt(match[2], 10),
-    hasInner: match[2] != null,
+    inner,
+    hasInner: rawInner != null,
   };
 }
 
@@ -262,32 +266,29 @@ function compareCostTerms(guessCard, targetCard) {
   const term = String(guessCost ?? "");
   if (term === String(targetCost ?? "")) return [{ term, state: "exact" }];
 
-  const isRoyal = guessCard.owners?.includes("储君") && targetCard.owners?.includes("储君");
-  if (isRoyal) {
-    const g = parseCost(guessCost);
-    const t = parseCost(targetCost);
+  const g = parseCost(guessCost);
+  const t = parseCost(targetCost);
+  const close = (a, b) => a != null && b != null && Math.abs(a - b) <= 1;
 
-    if (g.hasInner && t.hasInner) {
-      const baseSame = g.base === t.base;
-      const innerSame = g.inner === t.inner;
-      const innerDiff1 = Math.abs(g.inner - t.inner) === 1;
-      const baseDiff1 = Math.abs(g.base - t.base) === 1;
-      if ((baseSame && innerDiff1) || (innerSame && baseDiff1)) return [{ term, state: "partial" }];
-      return [{ term, state: "none" }];
-    }
+  if (g.hasInner && t.hasInner) {
+    const baseClose = close(g.base, t.base);
+    const hasXInner = g.inner === "X" || g.inner === "x" || t.inner === "X" || t.inner === "x";
+    if (hasXInner) return [{ term, state: baseClose ? "partial" : "none" }];
+    const innerClose = close(g.inner, t.inner);
+    return [{ term, state: baseClose || innerClose ? "partial" : "none" }];
+  }
 
-    if (!g.hasInner && t.hasInner && g.base != null && t.base != null && Math.abs(g.base - t.base) <= 1) {
-      return [{ term, state: "partial" }];
-    }
+  if (g.hasInner !== t.hasInner) {
+    return [{ term, state: close(g.base, t.base) ? "partial" : "none" }];
+  }
 
-    if (g.hasInner && !t.hasInner && g.base != null && t.base != null && Math.abs(g.base - t.base) <= 1) {
-      return [{ term, state: "partial" }];
-    }
+  if (close(g.base, t.base)) {
+    return [{ term, state: "partial" }];
   }
 
   const guessNumber = Number.parseInt(String(guessCost ?? "").match(/^\d+/)?.[0] ?? "", 10);
   const targetNumber = Number.parseInt(String(targetCost ?? "").match(/^\d+/)?.[0] ?? "", 10);
-  if (!Number.isNaN(guessNumber) && !Number.isNaN(targetNumber) && Math.abs(guessNumber - targetNumber) === 1) {
+  if (!Number.isNaN(guessNumber) && !Number.isNaN(targetNumber) && Math.abs(guessNumber - targetNumber) <= 1) {
     return [{ term, state: "partial" }];
   }
   return [{ term, state: "none" }];
@@ -416,17 +417,7 @@ function renderAutocomplete(query) {
 
   const pool = currentPool();
   state.matches = pool
-    .filter((card) => {
-      const alias = ownerPinyin[card.owner] || "";
-      return (
-        card.name.toLowerCase().includes(trimmed) ||
-        card.owner.toLowerCase().includes(trimmed) ||
-        card.type.toLowerCase().includes(trimmed) ||
-        card.rarity.toLowerCase().includes(trimmed) ||
-        card.tags.some((tag) => tag.toLowerCase().includes(trimmed)) ||
-        alias.includes(trimmed)
-      );
-    })
+    .filter((card) => card.name.toLowerCase().includes(trimmed))
     .slice(0, 24);
 
   el.autocompleteList.innerHTML = "";
