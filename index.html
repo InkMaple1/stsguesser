@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>杀戮尖塔卡牌猜测</title>
   <link rel="icon" type="image/webp" href="./64px-Map_unknown.webp">
-  <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/style.css?v=20260911">
 </head>
 <body>
   <main class="game-shell">
@@ -23,9 +23,12 @@
         <button id="confirmBtn" class="control-btn confirm-btn" type="button">确定</button>
         <button id="surrenderBtn" class="control-btn surrender-btn" type="button">投降</button>
         <button id="restartBtn" class="control-btn restart-btn" type="button">重新开始</button>
-
+        <button id="settingsBtn" class="settings-btn" type="button" aria-label="设置" title="设置">⚙</button>
       </div>
-      <button id="settingsBtn" class="settings-btn" type="button" aria-label="设置">⚙</button>
+      <button id="themeToggle" class="settings-btn theme-toggle" type="button" aria-label="切换日间/夜间模式" title="切换日间/夜间模式">
+        <span class="theme-icon theme-icon-sun" aria-hidden="true">☀</span>
+        <span class="theme-icon theme-icon-moon" aria-hidden="true">☾</span>
+      </button>
 
     </header>
 
@@ -84,6 +87,6 @@
     </div>
   </div>
 
-  <script src="./assets/js/app.js?v=20260908"></script>
+  <script src="./assets/js/app.js?v=20260910"></script>
 </body>
 </html>

@@ -41,6 +41,7 @@ const el = {
   surrenderBtn: document.querySelector("#surrenderBtn"),
   restartBtn: document.querySelector("#restartBtn"),
   settingsBtn: document.querySelector("#settingsBtn"),
+  themeToggle: document.querySelector("#themeToggle"),
 
   guessInput: document.querySelector("#guessInput"),
   autocompleteList: document.querySelector("#autocompleteList"),
@@ -59,6 +60,20 @@ const el = {
   versionFilters: document.querySelector("#versionFilters"),
   multiplayerToggle: document.querySelector("#multiplayerToggle"),
 };
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+}
+
+function currentTheme() {
+  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+}
+
+function toggleTheme() {
+  const nextTheme = currentTheme() === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+  localStorage.setItem("sts_theme", nextTheme);
+}
 
 function toArray(value) {
   if (Array.isArray(value)) return value;
@@ -570,6 +585,11 @@ function bindEvents() {
 async function init() {
   const savedStreak = Number.parseInt(localStorage.getItem("sts_win_streak") || "0", 10);
   state.winStreak = Number.isNaN(savedStreak) ? 0 : savedStreak;
+
+  const savedTheme = localStorage.getItem("sts_theme");
+  const preferredTheme = savedTheme || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  applyTheme(preferredTheme);
+  el.themeToggle.addEventListener("click", toggleTheme);
 
   bindEvents();
   el.settingsModal.style.display = "none";

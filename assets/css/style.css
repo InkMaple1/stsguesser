@@ -22,6 +22,56 @@
   --input-bg: #ffffff;
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #1e1b18;
+  --bg-soft: #2a2622;
+  --surface: #2b2723;
+  --surface-strong: #352f29;
+  --text: #f0e8dc;
+  --muted: #b9aa94;
+  --border: #6b5c49;
+  --shadow: rgba(0, 0, 0, 0.35);
+  --green: #4ccd7d;
+  --green-bg: #1e3a2b;
+  --yellow: #e0b45d;
+  --yellow-bg: #46371f;
+  --gray: #aab0b8;
+  --gray-bg: #3a3530;
+  --accent: #d95c5c;
+  --accent-hover: #e27777;
+  --gold: #d4af37;
+  --card-bg: #26221e;
+  --card-strong: #2e2924;
+  --input-bg: #2b2723;
+}
+
+:root[data-theme="dark"] .game-shell {
+  border-color: var(--border);
+  box-shadow: 0 0 26px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="dark"] #guessInput {
+  border-color: var(--border);
+  background: var(--input-bg);
+}
+
+:root[data-theme="dark"] #guessInput:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+
+:root[data-theme="dark"] .result-card {
+  border-color: var(--border);
+}
+
+:root[data-theme="dark"] .topbar .settings-btn {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+
+
 * {
   box-sizing: border-box;
 }
@@ -115,6 +165,11 @@ button {
   color: #fff;
 }
 
+.settings-control-btn {
+  background: #6b7280;
+  color: #fff;
+}
+
 .settings-btn {
   background: #6b7280;
   color: #fff;
@@ -138,6 +193,27 @@ button {
 }
 
 
+
+.theme-toggle .theme-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.theme-icon-sun {
+  display: none;
+}
+
+.theme-icon-moon {
+  display: inline;
+}
+
+:root[data-theme="dark"] .theme-icon-sun {
+  display: inline;
+}
+
+:root[data-theme="dark"] .theme-icon-moon {
+  display: none;
+}
 
 .status-bar {
   display: flex;
