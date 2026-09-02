@@ -11,6 +11,7 @@ const state = {
   filters: {
     owners: new Set(),
     versions: new Set(),
+    multiplayer: true,
   },
 
   autocompleteIndex: -1,
@@ -56,6 +57,7 @@ const el = {
   maxGuessesValue: document.querySelector("#maxGuessesValue"),
   ownerFilters: document.querySelector("#ownerFilters"),
   versionFilters: document.querySelector("#versionFilters"),
+  multiplayerToggle: document.querySelector("#multiplayerToggle"),
 };
 
 function toArray(value) {
@@ -115,7 +117,8 @@ function currentPool() {
     const ownerOk = card.owners.some((o) => state.filters.owners.has(o));
     const bothVersions = card.gameVersion.includes("杀戮尖塔1") && card.gameVersion.includes("杀戮尖塔2");
     const versionOk = card.gameVersion.some((v) => state.filters.versions.has(v)) || (state.filters.versions.has("杀戮尖塔1/杀戮尖塔2") && bothVersions);
-    return ownerOk && versionOk;
+    const multiplayerOk = state.filters.multiplayer || !(card.special || []).includes("多人专属");
+    return ownerOk && versionOk && multiplayerOk;
   });
 }
 
@@ -464,6 +467,7 @@ function moveAutocomplete(direction) {
 function openSettings() {
   el.maxGuesses.value = state.maxGuesses;
   el.maxGuessesValue.textContent = state.maxGuesses;
+  el.multiplayerToggle.checked = state.filters.multiplayer;
   buildFilters();
   el.settingsModal.hidden = false;
   el.settingsModal.style.display = "flex";
@@ -510,6 +514,7 @@ function saveSettings() {
   const nextVersions = new Set(
     [...el.versionFilters.querySelectorAll('input[type="checkbox"]:checked')].map((input) => input.value),
   );
+  const nextMultiplayer = el.multiplayerToggle.checked;
 
   if (nextOwners.size === 0 || nextVersions.size === 0) {
     showMessage("卡牌所属和所属版本至少各选择一项。", "lose");
@@ -519,6 +524,7 @@ function saveSettings() {
   state.maxGuesses = nextMax;
   state.filters.owners = nextOwners;
   state.filters.versions = nextVersions;
+  state.filters.multiplayer = nextMultiplayer;
   closeSettings();
   startGame();
 }
