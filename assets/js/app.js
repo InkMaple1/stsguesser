@@ -12,6 +12,7 @@ const state = {
     owners: new Set(),
     versions: new Set(),
     multiplayer: true,
+    blindMode: false,
   },
 
   autocompleteIndex: -1,
@@ -59,6 +60,7 @@ const el = {
   ownerFilters: document.querySelector("#ownerFilters"),
   versionFilters: document.querySelector("#versionFilters"),
   multiplayerToggle: document.querySelector("#multiplayerToggle"),
+  blindModeToggle: document.querySelector("#blindModeToggle"),
 };
 
 function applyTheme(theme) {
@@ -333,7 +335,9 @@ function renderGuess(guessCard) {
     ["特殊说明", splitTerms(guessCard.special), splitTerms(target.special)],
   ];
 
-  rows.forEach(([label, guessTerms, targetTerms]) => {
+  const blindIndex = state.filters.blindMode && guessCard.id !== target.id ? Math.floor(Math.random() * rows.length) : -1;
+
+  rows.forEach(([label, guessTerms, targetTerms], rowIndex) => {
     const states = label === "所属版本" ? compareVersionTerms(guessTerms, targetTerms) : label === "卡牌费用" ? compareCostTerms(guessCard, target) : label === "特殊说明" ? compareSpecialTerms(guessTerms, targetTerms) : compareTermStates(guessTerms, targetTerms);
     const column = document.createElement("div");
     column.className = "field-column";
@@ -342,15 +346,23 @@ function renderGuess(guessCard) {
     labelEl.textContent = label;
     column.appendChild(labelEl);
 
-    const chipList = document.createElement("div");
-    chipList.className = "chip-list";
-    states.forEach((item) => {
-      const chip = document.createElement("span");
-      chip.className = `chip ${item.state}`;
-      chip.textContent = item.term;
-      chipList.appendChild(chip);
-    });
-    column.appendChild(chipList);
+    if (rowIndex === blindIndex) {
+      const blindImage = document.createElement("img");
+      blindImage.src = "./blind.jpg";
+      blindImage.alt = "隐藏词条";
+      blindImage.className = "blind-image";
+      column.appendChild(blindImage);
+    } else {
+      const chipList = document.createElement("div");
+      chipList.className = "chip-list";
+      states.forEach((item) => {
+        const chip = document.createElement("span");
+        chip.className = `chip ${item.state}`;
+        chip.textContent = item.term;
+        chipList.appendChild(chip);
+      });
+      column.appendChild(chipList);
+    }
     list.appendChild(column);
   });
 
@@ -383,6 +395,7 @@ function processGuess(card) {
     state.over = true;
     state.winStreak = 0;
     localStorage.setItem("sts_win_streak", "0");
+    renderGuess(state.target);
     updateStatus();
     showMessage(`我说猜错算你输了，正确答案是 ${state.target.name}。`, "lose");
     el.guessInput.disabled = true;
@@ -474,6 +487,7 @@ function openSettings() {
   el.maxGuesses.value = state.maxGuesses;
   el.maxGuessesValue.textContent = state.maxGuesses;
   el.multiplayerToggle.checked = state.filters.multiplayer;
+  el.blindModeToggle.checked = state.filters.blindMode;
   buildFilters();
   el.settingsModal.hidden = false;
   el.settingsModal.style.display = "flex";
@@ -521,6 +535,7 @@ function saveSettings() {
     [...el.versionFilters.querySelectorAll('input[type="checkbox"]:checked')].map((input) => input.value),
   );
   const nextMultiplayer = el.multiplayerToggle.checked;
+  const nextBlindMode = el.blindModeToggle.checked;
 
   if (nextOwners.size === 0 || nextVersions.size === 0) {
     showMessage("卡牌所属和所属版本至少各选择一项。", "lose");
@@ -531,6 +546,7 @@ function saveSettings() {
   state.filters.owners = nextOwners;
   state.filters.versions = nextVersions;
   state.filters.multiplayer = nextMultiplayer;
+  state.filters.blindMode = nextBlindMode;
   closeSettings();
   startGame();
 }

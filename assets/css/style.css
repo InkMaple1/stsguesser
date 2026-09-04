@@ -408,6 +408,16 @@ button {
   align-items: center;
 }
 
+.field-column .blind-image {
+  display: block;
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
 .field-column .chip-list {
   align-items: center;
 }
