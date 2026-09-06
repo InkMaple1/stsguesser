@@ -1,4 +1,4 @@
-const cardsUrl = "./data/cards.json";
+const cardsUrl = `./data/cards.json?v=${Date.now()}`;
 
 const state = {
   cards: [],
@@ -338,7 +338,7 @@ function renderGuess(guessCard) {
   const blindIndex = state.filters.blindMode && guessCard.id !== target.id ? Math.floor(Math.random() * rows.length) : -1;
 
   rows.forEach(([label, guessTerms, targetTerms], rowIndex) => {
-    const states = label === "所属版本" ? compareVersionTerms(guessTerms, targetTerms) : label === "卡牌费用" ? compareCostTerms(guessCard, target) : (label === "特殊说明" || label === "稀有度") ? compareSpecialTerms(guessTerms, targetTerms) : compareTermStates(guessTerms, targetTerms);
+    const states = label === "所属版本" ? compareVersionTerms(guessTerms, targetTerms) : label === "卡牌费用" ? compareCostTerms(guessCard, target) : label === "卡牌类型" ? compareTermStates(guessTerms, targetTerms) : compareSpecialTerms(guessTerms, targetTerms);
     const column = document.createElement("div");
     column.className = "field-column";
     const labelEl = document.createElement("span");
