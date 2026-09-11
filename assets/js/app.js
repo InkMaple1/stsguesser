@@ -6,6 +6,8 @@ const state = {
   guesses: [],
   maxGuesses: 8,
   winStreak: 0,
+  avgTotalGuesses: 0,
+  avgWinCount: 0,
   randomUsed: false,
   over: false,
   filters: {
@@ -50,6 +52,7 @@ const el = {
   message: document.querySelector("#message"),
   guessCountText: document.querySelector("#guessCountText"),
   streakText: document.querySelector("#streakText"),
+  avgGuessText: document.querySelector("#avgGuessText"),
 
   settingsModal: document.querySelector("#settingsModal"),
   closeSettings: document.querySelector("#closeSettings"),
@@ -170,6 +173,8 @@ function updateStatus() {
   const remaining = Math.max(0, state.maxGuesses - state.guesses.length);
   el.guessCountText.textContent = `本轮猜测次数：${state.guesses.length}/${state.maxGuesses}`;
   el.streakText.textContent = `连胜次数：${state.winStreak}`;
+  const avgGuesses = state.avgWinCount > 0 ? Math.round(state.avgTotalGuesses / state.avgWinCount) : 0;
+  el.avgGuessText.textContent = `猜中平均使用次数：${avgGuesses}`;
   if (state.over) {
     el.guessCountText.textContent = state.target ? `本轮猜测次数：${state.guesses.length}/${state.maxGuesses}` : "题库为空";
   } else {
@@ -384,7 +389,10 @@ function processGuess(card) {
   if (card.id === state.target.id) {
     state.over = true;
     state.winStreak += 1;
+    state.avgWinCount += 1;
+    state.avgTotalGuesses += state.guesses.length;
     localStorage.setItem("sts_win_streak", String(state.winStreak));
+    localStorage.setItem("sts_avg_stats", JSON.stringify({ total: state.avgTotalGuesses, wins: state.avgWinCount }));
     updateStatus();
     showMessage(`我说猜中算你赢了！正确答案是 ${state.target.name}。当前连胜：${state.winStreak}。`, "win");
     el.guessInput.disabled = true;
@@ -394,7 +402,10 @@ function processGuess(card) {
   if (state.guesses.length >= state.maxGuesses) {
     state.over = true;
     state.winStreak = 0;
+    state.avgTotalGuesses = 0;
+    state.avgWinCount = 0;
     localStorage.setItem("sts_win_streak", "0");
+    localStorage.setItem("sts_avg_stats", JSON.stringify({ total: 0, wins: 0 }));
     renderGuess(state.target);
     updateStatus();
     showMessage(`我说猜错算你输了，正确答案是 ${state.target.name}。`, "lose");
@@ -427,7 +438,10 @@ function surrender() {
   if (state.over || !state.target) return;
   state.over = true;
   state.winStreak = 0;
+  state.avgTotalGuesses = 0;
+  state.avgWinCount = 0;
   localStorage.setItem("sts_win_streak", "0");
+  localStorage.setItem("sts_avg_stats", JSON.stringify({ total: 0, wins: 0 }));
   renderGuess(state.target);
   updateStatus();
   showMessage(`我说投降算你输了，正确答案是 ${state.target.name}。`, "lose");
@@ -601,6 +615,10 @@ function bindEvents() {
 async function init() {
   const savedStreak = Number.parseInt(localStorage.getItem("sts_win_streak") || "0", 10);
   state.winStreak = Number.isNaN(savedStreak) ? 0 : savedStreak;
+
+  const savedAvg = JSON.parse(localStorage.getItem("sts_avg_stats") || '{"total":0,"wins":0}');
+  state.avgTotalGuesses = Number.isFinite(savedAvg.total) ? savedAvg.total : 0;
+  state.avgWinCount = Number.isFinite(savedAvg.wins) ? savedAvg.wins : 0;
 
   const savedTheme = localStorage.getItem("sts_theme");
   const preferredTheme = savedTheme || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
